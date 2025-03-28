@@ -151,6 +151,7 @@ classdef TestPulserController < ws.Controller
             if ~isempty(monitor) ,
                 set(self.TraceLine, 'YData', monitor) ;
             end
+            drawnow('nocallbacks') ;
         end  % method
         
 %         function updateIsReady(self,varargin)            

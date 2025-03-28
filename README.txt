@@ -66,7 +66,7 @@ Copyright
 ---------
 
 Except where noted, all code, documentation, images, and anything else
-in WaveSurfer is copyright 2013-2019 by the Howard Hughes Medical 
+in WaveSurfer is copyright 2013-2022 by the Howard Hughes Medical 
 Institute.
 
 
@@ -486,4 +486,13 @@ Version History
                          Switched to semantic versioning
                          (https://semver.org/).
 
-1.0.2    June 5, 2019    Fixed bug with opening old protocol files.
+1.0.2    Jun 05, 2019    Fixed bug with opening old protocol files.
+
+1.0.5    Dec 01, 2020    Updates to pez controller example.  Added
+                         method to query whether logging is enabled
+                         to ws.WavesurferModel.
+
+1.0.6    Apr 25, 2022    Fixed bug with TP not updating in recent 
+                         Matlab versions, and TP window not 
+                         resizing properly.
+

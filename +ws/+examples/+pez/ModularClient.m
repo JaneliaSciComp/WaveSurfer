@@ -57,29 +57,39 @@
 %
 %   % Linux and Mac OS X
 %   ls /dev/tty*
-%   serial_port = '/dev/ttyACM0'     % example Linux serial port
+%   serial_port = '/dev/ttyACM0'            % example Linux serial port
 %   serial_port = '/dev/tty.usbmodem262471' % example Mac OS X serial port
-%
-%   % Windows
+%                                           % Windows
 %   getAvailableComPorts()
 %   ans =
 %   'COM1'
 %   'COM4'
-%   serial_port = 'COM4'             % example Windows serial port
+%   serial_port = 'COM4'                    % example Windows serial port
+%                                           %
+%   dev = ModularClient(serial_port)        % creates a client object
+%   dev.open()                              % opens a serial connection to the device
+%   device_id = dev.getDeviceId()           % get device id
+%   dev.getMethods()                        % get device methods
+%   dev.serialNumber()                      % get device serial number
+%   dev.serialNumber('getValue')            % get device serial number alternative
+%   dev.serialNumber('setValue',1)          % integers are automatically cast to int32
+%   dev.close()                             % close serial connection
+%   delete(dev)                             % deletes the client
 %
-%   dev = ModularClient(serial_port) % creates a client object
-%   dev.open()                       % opens a serial connection to the device
-%   device_id = dev.getDeviceId()    % get device ID
-%   dev.getMethods()                 % get device methods
-%   dev.close()                      % close serial connection
-%   delete(dev)                      % deletes the client
+%   debug = true
+%   dev = ModularClient(serial_port,debug)  % creates a client object with debugging
 %
+% This class is copied from
+% https://github.com/janelia-matlab/modular_client_matlab 
+% at commit 502b3334e9c9409485dfadb062fbe1296f141485, and was written by Peter Polidoro 
+% at HHMI Janelia.
+
 
 classdef ModularClient < handle
 
     properties
         dev = [];
-        debug = false;
+        debug  = false;
     end
 
     properties (Access=private)
@@ -112,7 +122,7 @@ classdef ModularClient < handle
 
     methods
 
-        function obj = ModularClient(port)
+        function obj = ModularClient(port,debug)
         % ModularClient - class constructor.
             obj.dev = serial( ...
                 port, ...
@@ -123,6 +133,9 @@ classdef ModularClient < handle
                 'terminator', obj.terminator,  ...
                 'inputbuffersize', obj.inputBufferSize ...
                 );
+            if exist('debug','var')
+                obj.debug = debug;
+            end
 
         end
 
@@ -181,14 +194,13 @@ classdef ModularClient < handle
         end
 
         function json = convertToJson(obj,matlabToConvert)
-            json = savejson('',matlabToConvert,'ArrayIndent',0, ...
-                            'ParseLogical',1,'SingletArray',0,'Compact',1);
+            json = jsonencode(matlabToConvert);
             json = strtrim(json);
         end
 
         function result = sendJsonRequest(obj,request)
             if obj.isOpen
-                requestCell = loadjson(request,'SimplifyCell',0);
+                requestCell = jsondecode(request);
                 method = requestCell{1};
                 requestJson = obj.convertToJson(requestCell);
                 fprintf(obj.dev,requestJson);
@@ -241,7 +253,7 @@ classdef ModularClient < handle
                 end
 
                 try
-                    responseStruct = loadjson(response);
+                    responseStruct = jsondecode(response);
                 catch ME
                     causeME = MException( ...
                         'ModularClient:unableToParseJSON', ...
@@ -380,7 +392,7 @@ classdef ModularClient < handle
         % the method and a cell array of the request arguments.
             switch class(method)
               case 'double'
-                request = sprintf('[%d',uint16(method));
+                request = sprintf('[%d',int32(method));
               case 'char'
                 request = sprintf('[%s',method);
               otherwise
@@ -393,7 +405,11 @@ classdef ModularClient < handle
                 switch class(arg)
                   case 'double'
                     if length(arg) == 1
-                        request = sprintf('%s, %f', request, arg);
+                        if floor(arg) ~= ceil(arg)
+                            request = sprintf('%s, %f', request, arg);
+                        else
+                            request = sprintf('%s, %d', request, int32(arg));
+                        end
                     else
                         json = obj.convertToJson(arg);
                         request = sprintf('%s, %s', request, json);

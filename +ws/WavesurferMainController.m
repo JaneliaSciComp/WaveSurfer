@@ -138,8 +138,7 @@ classdef WavesurferMainController < ws.Controller
                 'MenuBar','none', ...
                 'DockControls','off', ...
                 'NumberTitle','off', ...
-                'Visible','off', ...
-                'ResizeFcn', @(source,event)(self.resize_()) );
+                'Visible','off' );
            
             % Load in the needed icons from disk
             wavesurferDirName=fileparts(which('wavesurfer'));
@@ -238,10 +237,11 @@ classdef WavesurferMainController < ws.Controller
     end
     
     methods (Access=protected)
-        function resize_(self)
-            self.layout_() ;         
-            %self.updateTraces_() ;  % think this should happen via broadcast...
-        end        
+%         function resize_(self)
+%             fprintf('In WavesurferMainController::resize_()\n') ;
+%             self.layout_() ;         
+%             %self.updateTraces_() ;  % think this should happen via broadcast...
+%         end        
         
         function setInitialFigurePosition_(self)
             % Set the initial figure size

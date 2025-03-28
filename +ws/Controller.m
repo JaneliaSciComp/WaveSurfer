@@ -35,7 +35,8 @@ classdef (Abstract) Controller < ws.EventSubscriber
                                   'HandleVisibility','off', ...
                                   'DockControls','off', ...
                                   'NumberTitle','off', ...
-                                  'CloseRequestFcn',@(source,event)(self.closeRequested_(source,event))) ;
+                                  'CloseRequestFcn',@(source,event)(self.closeRequested_(source,event)), ...
+                                  'ResizeFcn', @(source,event)(self.resize_()) ) ;
             if exist('model','var') ,
                 self.Model_ = model ;
                 if ~isempty(model) && isvalid(model) ,
@@ -303,6 +304,15 @@ classdef (Abstract) Controller < ws.EventSubscriber
             % It can safely assume that all the non-fixed controls already
             % exist
             figureSizeModified = figureSize ;  % this is appropriate if there are no nonfixed controls
+        end
+
+        function resize_(self)
+            % This method should make sure all the controls are sized and placed
+            % appropraitely when the figure is resized.
+            
+            % This implementation should work in most cases, but can be overridden by
+            % subclasses if needed.
+            self.layout_() ;
         end
         
         function layout_(self)
