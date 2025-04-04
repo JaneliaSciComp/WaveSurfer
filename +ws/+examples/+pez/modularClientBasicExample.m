@@ -21,7 +21,7 @@ function modularClientBasicExample(port)
     % Create the Modular client object, open serial
     % connection and display device id.
     fprintf('Opening Modular client...\n');
-    dev = ModularClient(port);
+    dev = ws.examples.pez.ModularClient(port);
     dev.open();
     fprintf('Modular Device ID:');
     dev.getDeviceId()

@@ -3,6 +3,10 @@ classdef PezUserClass < ws.UserClass
         TrialSequenceModeOptions = {'all-1' 'all-2' 'alternating' 'random'} ;
     end
 
+    properties (Constant)
+        ComPortName = 'COM3' ;
+    end
+    
     properties (Dependent)
         TrialSequenceMode
         RandomTrialSequenceMaximumRunLength
@@ -149,7 +153,7 @@ classdef PezUserClass < ws.UserClass
                 error('Unrecognized TrialSequenceMode: %s', self.TrialSequenceMode) ;
             end
             self.IsRunning_ = true ;
-            self.PezDispenser_ = ws.examples.pez.ModularClient('COM3') ;
+            self.PezDispenser_ = ws.examples.pez.ModularClient(self.ComPortName) ;
             self.PezDispenser_.open() ;
             % Need to set the nextDeliverPosition to the position for the first trail,
             % then give the .startAssay() command to get the Arduino to position the stage
@@ -680,7 +684,7 @@ classdef PezUserClass < ws.UserClass
             if self.IsResetEnabled ,
                 self.IsResetInATimeout_ = true ;
                 self.tellControllerToUpdateIfPresent_() ;
-                self.PezDispenser_ = ws.examples.pez.ModularClient('COM3') ;
+                self.PezDispenser_ = ws.examples.pez.ModularClient(self.ComPortName) ;
                 self.PezDispenser_.open() ;
                 self.PezDispenser_.reset() ;
                 %self.PezDispenser_.close() ;
